@@ -1,5 +1,8 @@
 import os
 
+from mongoengine import connect
+connect('jamsession-example')
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 

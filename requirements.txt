@@ -1,4 +1,5 @@
 Django==1.2.3
-redis==2.0.0
 wsgiref==0.1.2
 South==0.7.2
+mongoengine==0.4
+pymongo==1.9
