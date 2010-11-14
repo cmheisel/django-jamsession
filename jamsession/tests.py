@@ -44,7 +44,6 @@ class DataSetTest(TestCase):
             datetime = datetime.datetime(year=1963, month=11, day=23))
 
         sample_definition = self._make_one(
-                title = 'Sample Defintion',
                 name = 'SampleData',
                 schema = schema)
 
@@ -57,3 +56,27 @@ class DataSetTest(TestCase):
             self.assert_(hasattr(s, key))
             self.assertEqual(value, getattr(s, key))
 
+
+    def test_bad_names(self):
+        """
+        A DataSetDefinition's name may contain
+        crazy non-valid Python characters.
+        It should appear, unchanged in it's data_object
+        repr().
+        """
+        sample_def = self._make_one(
+            name = 'Bad Fields Object $')
+
+        BadlyNamed = sample_def.get_data_object()
+        b = BadlyNamed()
+        self.assert_(sample_def.name in repr(b))
+
+    def test_bad_field_names(self):
+        from jamsession.models import ValidationError
+        sample_def = self._make_one(
+            name = 'Crazy Field Names',
+            schema = { '$foo': 'int',
+                       '__baz__': 'url',
+                       'hello': 'string', })
+
+        self.assertRaises(ValidationError, sample_def.validate)
