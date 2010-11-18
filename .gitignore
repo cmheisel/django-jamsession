@@ -2,3 +2,5 @@
 ve
 pip-log.txt
 example/*.db
+example/*.csv
+*.egg-info/*
