@@ -64,5 +64,9 @@ class CSVImporter(object):
                 schema = dict(schema))
             datadef.save()
 
+        Obj = datadef.get_data_object()
+        for row in reader:
+            Obj.objects.create(**row)
+
         return datadef
 

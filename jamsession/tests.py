@@ -113,5 +113,7 @@ class CSVImportTests(JamSessionTests):
         """
         importer = self._make_one()
         datadef = importer.load(self._get_csv('cumulativeflow.csv'))
+        DataObj = datadef.get_data_object()
 
         self.assertEqual(21, len(datadef.schema.keys()))
+        self.assert_(DataObj.objects.count() == 91)
