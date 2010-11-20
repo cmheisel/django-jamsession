@@ -1,4 +1,6 @@
-import string
+import os
+
+from csv import DictReader
 
 from mongoengine import (
     Document,
@@ -11,7 +13,6 @@ from mongoengine import (
     DateTimeField,
     DictField,
 )
-from mongoengine.base import ValidationError
 
 class SchemaDefinitionField(DictField):
     def validate(self, value):
@@ -50,8 +51,6 @@ class DataSetDefinition(Document):
             (Document, ),
             data_object_fields,)
 
-from csv import DictReader
-import os
 
 class CSVImporter(object):
     def load(self, datafile, datadef=None, has_fieldnames=True):
