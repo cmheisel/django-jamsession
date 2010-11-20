@@ -1,6 +1,8 @@
+import os
+
 from django.test import TestCase
 
-class DataSetTest(TestCase):
+class JamSessionTests(TestCase):
     def setUp(self):
         from mongoengine import connect
         connect('jamsession-unit-tests')
@@ -8,14 +10,19 @@ class DataSetTest(TestCase):
     def tearDown(self):
         from mongoengine.connection import _get_db
         db = _get_db()
-        db.drop_collection('jamsession-unit-tests')
+        [ db.drop_collection(name) for name in db.collection_names() if 'system.' not in name ]
 
     def _get_target_class(self):
-        from jamsession.models import DataSetDefinition
-        return DataSetDefinition
+        raise NotImplementedError
 
     def _make_one(self, *args, **kwargs):
         return self._get_target_class()(*args, **kwargs)
+
+
+class DataSetTest(JamSessionTests):
+    def _get_target_class(self):
+        from jamsession.models import DataSetDefinition
+        return DataSetDefinition
 
     def test_data_set_basic_schema(self):
         """
@@ -80,3 +87,31 @@ class DataSetTest(TestCase):
                        'hello': 'string', })
 
         self.assertRaises(ValidationError, sample_def.validate)
+
+
+class CSVImportTests(JamSessionTests):
+    def setUp(self):
+        self.csv_fixture_path = os.path.join(
+            os.path.abspath(
+                os.path.dirname(__file__)),
+            'fixtures',)
+        super(CSVImportTests, self).setUp()
+
+    def _get_target_class(self):
+        from jamsession.models import CSVImporter
+        return CSVImporter
+
+    def _get_csv(self, filename):
+        return os.path.join(self.csv_fixture_path, filename)
+
+    def test_csv_fresh_import(self):
+        """
+        DataSetDefinitions should be able to load data
+        from a CSV into a on-the-fly schema.
+
+        For now, that means all values come in as strings.
+        """
+        importer = self._make_one()
+        datadef = importer.load(self._get_csv('cumulativeflow.csv'))
+
+        self.assertEqual(21, len(datadef.schema.keys()))

@@ -14,14 +14,7 @@ from mongoengine import (
 from mongoengine.base import ValidationError
 
 class SchemaDefinitionField(DictField):
-    _valid_schema_key_characters = "%s%s" % (string.letters, string.digits)
-
     def validate(self, value):
-        for key in value.keys():
-            for letter in key:
-                if letter not in self._valid_schema_key_characters:
-                    raise ValidationError("%s is an invalid schema key, may only contain the following %s" %
-                                          (key, self._valid_schema_key_characters))
         return super(SchemaDefinitionField, self).validate(value)
 
 class DataSetDefinition(Document):
@@ -56,3 +49,20 @@ class DataSetDefinition(Document):
             'DynamicDataObject',
             (Document, ),
             data_object_fields,)
+
+from csv import DictReader
+import os
+
+class CSVImporter(object):
+    def load(self, datafile, datadef=None, has_fieldnames=True):
+        reader = DictReader(file(datafile, 'r'))
+
+        if not datadef:
+            schema = [(name, 'string') for name in reader.fieldnames]
+            datadef = DataSetDefinition.objects.create(
+                name = os.path.basename(datafile),
+                schema = dict(schema))
+            datadef.save()
+
+        return datadef
+
