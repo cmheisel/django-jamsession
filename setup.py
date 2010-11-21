@@ -7,7 +7,7 @@ setup(
     author_email = "chris@heisel.org",
     description = ("A Django reusable app providing the ability for admin "
         "users to create their own forms."),
-    long_description = open("README.txt").read(),
+    long_description = open("README.md").read(),
     url = "http://github.com/stephenmcd/django-forms-builder",
     zip_safe = False,
     include_package_data = True,
