@@ -1,6 +1,7 @@
 import os
 
 from csv import DictReader
+from mongoengine import ValidationError
 
 from mongoengine import (
     Document,
