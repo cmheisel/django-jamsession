@@ -104,6 +104,33 @@ class CSVImportTests(JamSessionTests):
     def _get_csv(self, filename):
         return os.path.join(self.csv_fixture_path, filename)
 
+    def _get_cumulative_flow_def(self):
+        from jamsession.models import DataSetDefinition
+        return DataSetDefinition(
+            name = 'Cumulative Flow Data',
+            schema = {
+                'Date': 'datetime',
+                'UX: Backlog': 'int',
+                'UX: Elaboration': 'int',
+                'UX: Specification': 'int',
+                'Backlog': 'int',
+                'Elaboration': 'int',
+                'Ready: UX': 'int',
+                'UX: Design': 'int',
+                'UX: Review/Demo': 'int',
+                'UI Dev': 'int',
+                'Ready: Dev': 'int',
+                'Development': 'int',
+                'Review/Demo': 'int',
+                'Ready: Test': 'int',
+                'Test': 'int',
+                'Ready: Stage': 'int',
+                'Training & Marketing': 'int',
+                'Ready: Deploy': 'int',
+                'Deploy': 'int',
+                'Done': 'int',
+                'Archive': 'int', })
+
     def test_csv_fresh_import(self):
         """
         DataSetDefinitions should be able to load data
@@ -116,4 +143,18 @@ class CSVImportTests(JamSessionTests):
         DataObj = datadef.get_data_object()
 
         self.assertEqual(21, len(datadef.schema.keys()))
+        self.assert_(DataObj.objects.count() == 91)
+
+    def test_csv_exisiting_import(self):
+        """
+        DataSetDefinitions should be able to load data
+        from a CSV into an exisiting schema.
+        """
+        importer = self._make_one()
+        datadef = self._get_cumulative_flow_def()
+        cum_def = importer.load(self._get_csv(
+                'cumulativeflow.csv'),
+                datadef,)
+        DataObj = cum_def.get_data_object()
+
         self.assert_(DataObj.objects.count() == 91)
