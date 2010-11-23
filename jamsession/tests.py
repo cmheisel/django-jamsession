@@ -139,11 +139,12 @@ class CSVImportTests(JamSessionTests):
         For now, that means all values come in as strings.
         """
         importer = self._make_one()
-        datadef = importer.load(self._get_csv('cumulativeflow.csv'))
+        datadef, num_created = importer.load(self._get_csv('cumulativeflow.csv'))
         DataObj = datadef.get_data_object()
 
         self.assertEqual(21, len(datadef.schema.keys()))
         self.assert_(DataObj.objects.count() == 91)
+        self.assertEqual(91, num_created)
 
     def test_csv_exisiting_import(self):
         """
@@ -152,9 +153,18 @@ class CSVImportTests(JamSessionTests):
         """
         importer = self._make_one()
         datadef = self._get_cumulative_flow_def()
-        cum_def = importer.load(self._get_csv(
-                'cumulativeflow.csv'),
-                datadef,)
+        from jamsession.models import ImportFailed
+        import pprint
+
+        try:
+            cum_def, num_created = importer.load(self._get_csv(
+                    'cumulativeflow.csv'),
+                    datadef,)
+        except ImportFailed, e:
+            pprint.pprint(e.row_errors)
+            raise
+
         DataObj = cum_def.get_data_object()
 
-        self.assert_(DataObj.objects.count() == 91)
+        self.assertEqual(91, num_created)
+        self.assertEqual(91, DataObj.objects.count())

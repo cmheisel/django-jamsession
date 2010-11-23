@@ -1,6 +1,8 @@
 import os
-
 from csv import DictReader
+
+import dateutil
+
 from mongoengine import ValidationError
 
 from mongoengine import (
@@ -52,21 +54,98 @@ class DataSetDefinition(Document):
             (Document, ),
             data_object_fields,)
 
+class ImportFailed(Exception):
+    row_errors = []
+
+class ImportConversionFailed(Exception):
+    errors = []
 
 class CSVImporter(object):
-    def load(self, datafile, datadef=None, has_fieldnames=True):
+    @property
+    def converters(self):
+        import datetime
+        return {
+            'string': str,
+            'url': str,
+            'email': str,
+            'int': int,
+            'float': float,
+            'bool': bool,
+            'datetime': self.cast_datetime,}
+
+    def cast_datetime(self, value):
+        from dateutil.parser import parse
+        return parse(value)
+
+    def cast_value(self, value, typehint):
+        if value in ('', u'', None):
+            return None
+        return self.converters[typehint](value)
+
+    def prepare_row(self, row, schema):
+        cast_row = {}
+        errors = []
+        for key in row.keys():
+            try:
+                cast_row[key] = self.cast_value(row[key], schema[key])
+            except TypeError:
+                errors.append("Couldn't convert < %s > to %s" % (row[key], schema[key]))
+        if errors:
+            exc = ImportConversionFailed("Couldn't convert row %s" % row)
+            exc.errors = errors
+            raise exc
+        return cast_row
+
+    def check_columns(self, reader, datadef):
+        # First do the columns even match?
+        import_columns = [ name.strip() for name in reader.fieldnames ]
+        target_columns = datadef.schema.keys()
+
+        for col in import_columns:
+            if col not in target_columns:
+                msg = ["Column's don't match target schema:",
+                       "TARGET COLUMNS",
+                       "%s" % target_columns,
+                       "",
+                       "IMPORT COLUMNS",
+                       "%s" % import_columns, ]
+                msg = '\n'.join(msg)
+                raise ImportFailed(msg)
+
+    def load(self, datafile, datadef=None):
+        """
+        Read a CSV file into a new (all-strings) schema.
+        Optionally accepts an existing DataSetDefinition.
+
+        If the entire CSV can not be loaded, the operation will
+        be aborted and an ImportFailed exception will be raised.
+        """
         reader = DictReader(file(datafile, 'r'))
 
         if not datadef:
-            schema = [(name, 'string') for name in reader.fieldnames]
+            schema = [(name.strip(), 'string') for name in reader.fieldnames]
             datadef = DataSetDefinition.objects.create(
                 name = os.path.basename(datafile),
                 schema = dict(schema))
             datadef.save()
 
-        Obj = datadef.get_data_object()
-        for row in reader:
-            Obj.objects.create(**row)
+        self.check_columns(reader, datadef)
 
-        return datadef
+        Obj = datadef.get_data_object()
+        row_errors = []
+        values = []
+        for row in reader:
+            try:
+                values.append(self.prepare_row(row, datadef.schema))
+            except ImportConversionFailed, e:
+                row_errors.append((row, e.errors))
+
+        if row_errors:
+            exc = ImportFailed(
+                "Failed to import entire file, %s rows had errors" % len(row_errors))
+            exc.row_errors = row_errors
+            raise exc
+
+        new_objects = [ Obj.objects.create(**v) for v in values ]
+        return (datadef, len(new_objects))
 
