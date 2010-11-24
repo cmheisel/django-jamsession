@@ -2,6 +2,7 @@ import os
 
 from django.test import TestCase
 
+
 class JamSessionTests(TestCase):
     def setUp(self):
         from mongoengine import connect
@@ -10,7 +11,8 @@ class JamSessionTests(TestCase):
     def tearDown(self):
         from mongoengine.connection import _get_db
         db = _get_db()
-        [ db.drop_collection(name) for name in db.collection_names() if 'system.' not in name ]
+        [db.drop_collection(name) for name in db.collection_names() \
+          if 'system.' not in name]
 
     def _get_target_class(self):
         raise NotImplementedError
@@ -33,26 +35,26 @@ class DataSetTest(JamSessionTests):
         import datetime
 
         schema = dict(
-            name = 'string',
-            url = 'url',
-            email = 'email',
-            integer = 'int',
-            floater = 'float',
-            boolean = 'bool',
-            datetime = 'datetime')
+            name='string',
+            url='url',
+            email='email',
+            integer='int',
+            floater='float',
+            boolean='bool',
+            datetime='datetime')
 
         sample_values = dict(
-            name = 'The Doctor',
-            url = 'http://www.doctorwho.com',
-            email = 'the_dr@tardis.time.vortex.co.uk',
-            integer = 42,
-            floater = 42.0,
-            boolean = True,
-            datetime = datetime.datetime(year=1963, month=11, day=23))
+            name='The Doctor',
+            url='http://www.doctorwho.com',
+            email='the_dr@tardis.time.vortex.co.uk',
+            integer=42,
+            floater=42.0,
+            boolean=True,
+            datetime=datetime.datetime(year=1963, month=11, day=23))
 
         sample_definition = self._make_one(
-                name = 'SampleData',
-                schema = schema)
+                name='SampleData',
+                schema=schema)
 
         SampleData = sample_definition.get_data_object()
         s = SampleData(**sample_values)
@@ -63,7 +65,6 @@ class DataSetTest(JamSessionTests):
             self.assert_(hasattr(s, key))
             self.assertEqual(value, getattr(s, key))
 
-
     def test_bad_names(self):
         """
         A DataSetDefinition's name may contain
@@ -72,7 +73,7 @@ class DataSetTest(JamSessionTests):
         repr().
         """
         sample_def = self._make_one(
-            name = 'Bad Fields Object $')
+            name='Bad Fields Object $')
 
         BadlyNamed = sample_def.get_data_object()
         b = BadlyNamed()
@@ -81,10 +82,10 @@ class DataSetTest(JamSessionTests):
     def test_bad_field_names(self):
         from jamsession.models import ValidationError
         sample_def = self._make_one(
-            name = 'Crazy Field Names',
-            schema = { '$foo': 'int',
-                       '__baz__': 'url',
-                       'hello': 'string', })
+            name='Crazy Field Names',
+            schema={'$foo': 'int',
+                    '__baz__': 'url',
+                    'hello': 'string', })
 
         self.assertRaises(ValidationError, sample_def.validate)
 
@@ -107,8 +108,8 @@ class CSVImportTests(JamSessionTests):
     def _get_cumulative_flow_def(self):
         from jamsession.models import DataSetDefinition
         return DataSetDefinition(
-            name = 'Cumulative Flow Data',
-            schema = {
+            name='Cumulative Flow Data',
+            schema={
                 'Date': 'datetime',
                 'UX: Backlog': 'int',
                 'UX: Elaboration': 'int',
@@ -139,7 +140,8 @@ class CSVImportTests(JamSessionTests):
         For now, that means all values come in as strings.
         """
         importer = self._make_one()
-        datadef, num_created = importer.load(self._get_csv('cumulativeflow.csv'))
+        datadef, num_created = importer.load(
+            self._get_csv('cumulativeflow.csv'))
         DataObj = datadef.get_data_object()
 
         self.assertEqual(21, len(datadef.schema.keys()))

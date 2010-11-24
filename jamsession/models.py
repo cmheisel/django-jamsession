@@ -1,8 +1,6 @@
 import os
 from csv import DictReader
 
-import dateutil
-
 from mongoengine import ValidationError
 
 from mongoengine import (
@@ -17,9 +15,11 @@ from mongoengine import (
     DictField,
 )
 
+
 class SchemaDefinitionField(DictField):
     def validate(self, value):
         return super(SchemaDefinitionField, self).validate(value)
+
 
 class DataSetDefinition(Document):
     name = StringField(unique=True, required=True)
@@ -32,7 +32,7 @@ class DataSetDefinition(Document):
         'int': IntField,
         'float': FloatField,
         'bool': BooleanField,
-        'datetime': DateTimeField }
+        'datetime': DateTimeField}
 
     def _get_data_object_fields(self):
         data_object_fields = {}
@@ -54,16 +54,18 @@ class DataSetDefinition(Document):
             (Document, ),
             data_object_fields,)
 
+
 class ImportFailed(Exception):
     row_errors = []
+
 
 class ImportConversionFailed(Exception):
     errors = []
 
+
 class CSVImporter(object):
     @property
     def converters(self):
-        import datetime
         return {
             'string': str,
             'url': str,
@@ -71,7 +73,7 @@ class CSVImporter(object):
             'int': int,
             'float': float,
             'bool': bool,
-            'datetime': self.cast_datetime,}
+            'datetime': self.cast_datetime, }
 
     def cast_datetime(self, value):
         from dateutil.parser import parse
@@ -89,7 +91,8 @@ class CSVImporter(object):
             try:
                 cast_row[key] = self.cast_value(row[key], schema[key])
             except TypeError:
-                errors.append("Couldn't convert < %s > to %s" % (row[key], schema[key]))
+                errors.append("Couldn't convert < %s > to %s"
+                              % (row[key], schema[key]))
         if errors:
             exc = ImportConversionFailed("Couldn't convert row %s" % row)
             exc.errors = errors
@@ -98,7 +101,8 @@ class CSVImporter(object):
 
     def check_columns(self, reader, datadef):
         # First do the columns even match?
-        import_columns = [ name.strip() for name in reader.fieldnames ]
+        import_columns = [name.strip()
+                           for name in reader.fieldnames]
         target_columns = datadef.schema.keys()
 
         for col in import_columns:
@@ -125,8 +129,8 @@ class CSVImporter(object):
         if not datadef:
             schema = [(name.strip(), 'string') for name in reader.fieldnames]
             datadef = DataSetDefinition.objects.create(
-                name = os.path.basename(datafile),
-                schema = dict(schema))
+                name=os.path.basename(datafile),
+                schema=dict(schema))
             datadef.save()
 
         self.check_columns(reader, datadef)
@@ -142,10 +146,10 @@ class CSVImporter(object):
 
         if row_errors:
             exc = ImportFailed(
-                "Failed to import entire file, %s rows had errors" % len(row_errors))
+                "Failed to import entire file, %s rows had errors"
+                % len(row_errors))
             exc.row_errors = row_errors
             raise exc
 
-        new_objects = [ Obj.objects.create(**v) for v in values ]
+        new_objects = [Obj.objects.create(**v) for v in values]
         return (datadef, len(new_objects))
-
