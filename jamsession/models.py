@@ -1,4 +1,5 @@
 import os
+import sys
 from csv import DictReader
 
 from mongoengine import (
@@ -20,9 +21,11 @@ class SchemaDefinitionField(DictField):
     def validate(self, value):
         return super(SchemaDefinitionField, self).validate(value)
 
+
 class ClassProperty(property):
         def __get__(self, cls, owner):
                 return self.fget.__get__(None, owner)()
+
 
 class DocumentModel(Document):
     @classmethod
@@ -34,6 +37,20 @@ class DocumentModel(Document):
     def verbose_name_plural(cls):
         return cls.meta.get('verbose_name_plural', cls.verbose_name + 's')
     verbose_name_plurla = ClassProperty(verbose_name_plural)
+
+    @classmethod
+    def app_label(cls):
+        app_label = cls.meta.get('app_label', None)
+        if not app_label:
+            model_module = sys.modules[cls.__module__]
+            app_label = model_module.__name__.split('.')[-2]
+        return app_label
+    app_label = ClassProperty(app_label)
+
+    @classmethod
+    def object_name(cls):
+        return cls.meta.get('object_name', cls.__name__)
+    object_name = ClassProperty(object_name)
 
 
 class DataSetDefinition(DocumentModel):
@@ -74,7 +91,14 @@ class DataSetDefinition(DocumentModel):
             data_object_fields,)
 
     class AdminForm(forms.Form):
-        name = forms.CharField()
+        error_css_class = 'error'
+        required_css_class = 'required'
+        name = forms.CharField(required=True)
+
+        def save(self):
+            obj = DataSetDefinition(**self.cleaned_data)
+            obj.save()
+            return obj
 
 
 class ImportFailed(Exception):
