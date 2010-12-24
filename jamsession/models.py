@@ -1,8 +1,6 @@
 import os
 from csv import DictReader
 
-from mongoengine import ValidationError
-
 from mongoengine import (
     Document,
     StringField,
@@ -15,15 +13,35 @@ from mongoengine import (
     DictField,
 )
 
+from django import forms
+
 
 class SchemaDefinitionField(DictField):
     def validate(self, value):
         return super(SchemaDefinitionField, self).validate(value)
 
+class ClassProperty(property):
+        def __get__(self, cls, owner):
+                return self.fget.__get__(None, owner)()
 
-class DataSetDefinition(Document):
+class DocumentModel(Document):
+    @classmethod
+    def verbose_name(cls):
+        return cls.meta.get('verbose_name', cls.__name__)
+    verbose_name = ClassProperty(verbose_name)
+
+    @classmethod
+    def verbose_name_plural(cls):
+        return cls.meta.get('verbose_name_plural', cls.verbose_name + 's')
+    verbose_name_plurla = ClassProperty(verbose_name_plural)
+
+
+class DataSetDefinition(DocumentModel):
     name = StringField(unique=True, required=True)
     schema = SchemaDefinitionField()
+    meta = {
+        'verbose_name': 'Data set definition'
+    }
 
     _field_type_translations = {
         'string': StringField,
@@ -37,7 +55,8 @@ class DataSetDefinition(Document):
     def _get_data_object_fields(self):
         data_object_fields = {}
         for name, field_type in self.schema.items():
-            data_object_fields[name] = self._field_type_translations[field_type]()
+            data_object_fields[name] = \
+                self._field_type_translations[field_type]()
 
         return data_object_fields
 
@@ -51,8 +70,11 @@ class DataSetDefinition(Document):
 
         return type(
             'DynamicDataObject',
-            (Document, ),
+            (DocumentModel, ),
             data_object_fields,)
+
+    class AdminForm(forms.Form):
+        name = forms.CharField()
 
 
 class ImportFailed(Exception):
