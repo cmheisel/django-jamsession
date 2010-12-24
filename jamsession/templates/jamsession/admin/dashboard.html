@@ -8,3 +8,20 @@
   Jamsession
 </div>
 {% endblock breadcrumbs %}
+
+{% block content %}
+<div id="content-main">
+
+  <div class="module">
+    <table summary="Models available in the jamsession application">
+      <caption><a class="section" href="{% url jamsession:admin-dashboard %}">Jamsession</a></caption>
+      <tr>
+        <th scope="row">Data set definition</th>
+        <td>Add</td>
+        <td>Change</td>
+      </tr>
+    </table>
+  </div>
+
+</div>
+{% endblock content %}

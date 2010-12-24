@@ -9,5 +9,5 @@ urlpatterns = patterns('',
 
     (r'^admin/doc/', include('django.contrib.admindocs.urls')),
     (r'^admin/', include(admin.site.urls)),
-    (r'^jamsession/', include('jamsession.urls')),
+    (r'^jamsession/', include('jamsession.urls', namespace="jamsession", app_name="jamsession")),
 )
