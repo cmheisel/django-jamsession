@@ -1,5 +1,7 @@
 import os
 import sys
+import logging
+import pprint
 from csv import DictReader
 
 from mongoengine import (
@@ -36,7 +38,7 @@ class DocumentModel(Document):
     @classmethod
     def verbose_name_plural(cls):
         return cls.meta.get('verbose_name_plural', cls.verbose_name + 's')
-    verbose_name_plurla = ClassProperty(verbose_name_plural)
+    verbose_name_plural = ClassProperty(verbose_name_plural)
 
     @classmethod
     def app_label(cls):
@@ -110,6 +112,10 @@ class ImportConversionFailed(Exception):
 
 
 class CSVImporter(object):
+    def __init__(self):
+        super(CSVImporter, self).__init__()
+        self.logger = logging.getLogger("jamsession.CSVImporter")
+
     @property
     def converters(self):
         return {
@@ -197,5 +203,13 @@ class CSVImporter(object):
             exc.row_errors = row_errors
             raise exc
 
-        new_objects = [Obj.objects.create(**v) for v in values]
+#        new_objects = [Obj.objects.create(**v) for v in values if v]
+
+        new_objects = []
+        for v in values:
+            self.logger.debug("Creating row with values %s"
+                              % pprint.pformat(v))
+            new_objects.append(Obj.objects.create(**v))
+            self.logger.debug("SUCCESS!")
+
         return (datadef, len(new_objects))
