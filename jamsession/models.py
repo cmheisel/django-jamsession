@@ -188,6 +188,9 @@ class CSVImporter(object):
         self.check_columns(reader, datadef)
 
         Obj = datadef.get_data_object()
+        logging.debug(type(Obj))
+        logging.debug(dir(Obj))
+        logging.debug(Obj._class_name)
         row_errors = []
         values = []
         for row in reader:
