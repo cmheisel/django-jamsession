@@ -79,6 +79,10 @@ class DataSetDefinition(DocumentModel):
 
         return data_object_fields
 
+    def _get_data_object_name(self):
+        parts = [part.strip().capitalize() for part in self.name.split('.')]
+        return ''.join(parts)
+
     def get_data_object(self):
         self.validate()
         data_object_fields = self._get_data_object_fields()
@@ -88,7 +92,7 @@ class DataSetDefinition(DocumentModel):
         data_object_fields['__repr__'] = data_object_repr
 
         return type(
-            'DynamicDataObject',
+            self._get_data_object_name(),
             (DocumentModel, ),
             data_object_fields,)
 
