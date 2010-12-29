@@ -90,6 +90,8 @@ class DataSetDefinition(DocumentModel):
         def data_object_repr(obj):
             return u"<%s: %s>" % (obj.__class__, self.name)
         data_object_fields['__repr__'] = data_object_repr
+        data_object_fields['meta'] = {
+            'collection': self._get_data_object_name()}
 
         return type(
             self._get_data_object_name(),

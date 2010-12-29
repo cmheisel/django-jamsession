@@ -7,4 +7,4 @@ PROJECT_APPS = ('jamsession', )
 HUDSON_TASKS = ('coverage', 'tests')
 
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.WARNING)
