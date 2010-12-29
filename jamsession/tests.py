@@ -77,7 +77,7 @@ class DataSetTest(JamSessionTests):
         """
         nullable_schema = {'Archive': 'string',
                            'Backlog': 'string',
-                           'Date': 'string',
+                           'Date': 'datetime',
                            'Deploy': 'string',
                            'Development': 'string',
                            'Done': 'string',
@@ -99,10 +99,11 @@ class DataSetTest(JamSessionTests):
         NullableDef = self._make_one(name="NullTester",
                                     schema=nullable_schema)
 
+        import datetime
         Nullable = NullableDef.get_data_object()
         Nullable.objects.create(**{'Archive': '0',
                                    'Backlog': '9',
-                                   'Date': '8/1/2010',
+                                   'Date': datetime.datetime(2010, 1, 8),
                                    'Deploy': '16',
                                    'Development': '19',
                                    'Done': '0',
@@ -123,7 +124,7 @@ class DataSetTest(JamSessionTests):
                                    'UX: Specification': '3'})
         Nullable.objects.create(**{'Archive': '0',
                                    'Backlog': '6',
-                                   'Date': '8/2/2010',
+                                   'Date': datetime.datetime(2010, 1, 8),
                                    'Deploy': '6',
                                    'Development': '22',
                                    'Done': '0',
