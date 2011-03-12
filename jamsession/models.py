@@ -16,7 +16,7 @@ from mongoengine import (
     DictField,
 )
 
-from django import forms
+from jamsession.forms.admin import DataDefAdminForm
 
 
 class SchemaDefinitionField(DictField):
@@ -30,6 +30,8 @@ class ClassProperty(property):
 
 
 class DocumentModel(Document):
+    AdminForm = DataDefAdminForm
+
     @classmethod
     def verbose_name(cls):
         return cls.meta.get('verbose_name', cls.__name__)
@@ -97,29 +99,6 @@ class DataSetDefinition(DocumentModel):
             self._get_data_object_name(),
             (DocumentModel, ),
             data_object_fields,)
-
-    class AdminForm(forms.Form):
-        error_css_class = 'error'
-        required_css_class = 'required'
-        name = forms.CharField(required=True)
-        schema = forms.CharField(widget=forms.Textarea, required=True)
-
-        def clean_name(self):
-            data = self.cleaned_data['name'].strip()
-            if not data:
-                raise forms.ValidationError("Name is required.")
-            return data
-
-        def clean_schema(self):
-            data = self.cleaned_data['schema'].strip()
-            if not data:
-                raise forms.ValidationError("Schema is required.")
-
-        def save(self):
-            obj = DataSetDefinition(**self.cleaned_data)
-            obj.save()
-            return obj
-
 
 class ImportFailed(Exception):
     row_errors = []
