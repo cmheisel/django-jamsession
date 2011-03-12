@@ -264,6 +264,7 @@ class DataDefFormTests(JamTestCase):
             {'schema': None},
             {'schema': ''},
             {'schema': '   '},
+            {'schema': 'Column name'},
         ]
         for data in datas:
             f = Form(data)
