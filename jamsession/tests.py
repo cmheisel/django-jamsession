@@ -274,3 +274,14 @@ class DataDefFormTests(JamTestCase):
         data = {'schema': 'First Name,string'}
         f = Form(data)
         assert('schema' not in f.errors)
+
+    def test_schema_keys_should_be_unique(self):
+        Form = self._get_target_klass()
+        data = {
+            'name': 'Test Dataset',
+            'schema': """Name,string
+ID,integer
+Name,string"""
+            }
+        f = Form(data)
+        assert('schema' in f.errors)

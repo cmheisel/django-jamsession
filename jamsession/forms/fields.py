@@ -1,7 +1,7 @@
-from django.forms import CharField
+from django import forms
 
 
-class SchemaField(CharField):
+class SchemaField(forms.CharField):
     """
     Custom field to accept a comma and line delimited
     text input of a schema definition
@@ -14,7 +14,11 @@ class SchemaField(CharField):
             parts = line.split(',')
             if len(parts) >= 2:
                 key, value = parts[0].strip(), parts[1].strip()
-                if key and value: schema[key] = value
+                if key and value:
+                    if key in schema:
+                        msg = "Schema keys must be unique, more than one %s defined" % key
+                        raise forms.ValidationError(msg)
+                    schema[key] = value
 
         return schema
 
