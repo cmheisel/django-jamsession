@@ -1,4 +1,8 @@
+import pprint
+
 from django import forms
+
+from jamsession.util import FIELD_TYPE_TRANSLATIONS
 
 
 class SchemaField(forms.CharField):
@@ -11,9 +15,17 @@ class SchemaField(forms.CharField):
         if not(key and value):
             msg = "Must provide both a column name and a column type"
             raise forms.ValidationError(msg)
-        if key in schema:
-            msg = "Schema keys must be unique, more than one %s defined" % key
+        if key in schema.keys():
+            msg = "Column names must be unique, more than one %s defined" % key
             raise forms.ValidationError(msg)
+
+        valid_values = FIELD_TYPE_TRANSLATIONS.keys()
+        if value not in valid_values:
+            print "<%s> not in %s" % (key, valid_values)
+            msg = "Column types must be one of %s, got %s" % \
+                (pprint.pformat(valid_values), key)
+            raise forms.ValidationError(msg)
+        return True
 
     def parse_schema_entries(self, text):
         lines = [line for line in text.split('\n')]

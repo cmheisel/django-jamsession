@@ -3,25 +3,9 @@ import sys
 import logging
 import pprint
 from csv import DictReader
-
-from mongoengine import (
-    Document,
-    StringField,
-    URLField,
-    EmailField,
-    IntField,
-    FloatField,
-    BooleanField,
-    DateTimeField,
-    DictField,
-)
-
+from mongoengine import Document, StringField, DictField
 from jamsession.forms.admin import DataDefAdminForm
-
-
-class SchemaDefinitionField(DictField):
-    def validate(self, value):
-        return super(SchemaDefinitionField, self).validate(value)
+from jamsession.util import FIELD_TYPE_TRANSLATIONS
 
 
 class ClassProperty(property):
@@ -59,25 +43,16 @@ class DocumentModel(Document):
 
 class DataSetDefinition(DocumentModel):
     name = StringField(unique=True, required=True)
-    schema = SchemaDefinitionField()
+    schema = DictField(required=True)
     meta = {
         'verbose_name': 'Data set definition'
     }
-
-    _field_type_translations = {
-        'string': StringField,
-        'url': URLField,
-        'email': EmailField,
-        'int': IntField,
-        'float': FloatField,
-        'bool': BooleanField,
-        'datetime': DateTimeField}
 
     def _get_data_object_fields(self):
         data_object_fields = {}
         for name, field_type in self.schema.items():
             data_object_fields[name] = \
-                self._field_type_translations[field_type]()
+                FIELD_TYPE_TRANSLATIONS[field_type]()
 
         return data_object_fields
 

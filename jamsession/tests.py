@@ -252,11 +252,11 @@ class DataDefFormTests(JamTestCase):
         for data in datas:
             f = Form(data)
             msg = "Data: %s didn't throw an error" % data
-            self.assert_('name' in f.errors, msg)
+            self.assert_('name' in f.errors.keys(), msg)
 
         data = {'name': "The Brigadier"}
         f = Form(data)
-        assert('name' not in f.errors)
+        assert('name' not in f.errors.keys())
 
     def test_schema_should_be_required(self):
         Form = self._get_target_klass()
@@ -269,11 +269,13 @@ class DataDefFormTests(JamTestCase):
         for data in datas:
             f = Form(data)
             msg = "Data: %s didn't throw an error" % data
-            self.assert_('schema' in f.errors, msg)
+            self.assert_('schema' in f.errors.keys(), msg)
 
         data = {'schema': 'First Name,string'}
         f = Form(data)
-        assert('schema' not in f.errors)
+        msg = "Data: %s shouldn't have throw any errors, but it did." \
+            % (data, )
+        self.assert_('schema' not in f.errors.keys(), msg)
 
     def test_schema_keys_should_be_unique(self):
         Form = self._get_target_klass()
@@ -284,4 +286,30 @@ ID,integer
 Name,string"""
             }
         f = Form(data)
-        assert('schema' in f.errors)
+        assert('schema' in f.errors.keys())
+
+    def test_schema_types_should_be_valid(self):
+        Form = self._get_target_klass()
+        invalid_datas = [
+            {'schema': 'Name,str'},
+            {'schema': 'Name,char'},
+            {'schema': 'Name,date'},
+        ]
+        valid_datas = [
+            {'schema': 'Name,string'},
+            {'schema': 'Name,url'},
+            {'schema': 'Name,email'},
+            {'schema': 'Name,int'},
+            {'schema': 'Name, float'},
+            {'schema': 'Name,bool'},
+            {'schema': 'Name,datetime'},
+         ]
+
+        for data in invalid_datas:
+            f = Form(data)
+            msg = "Data %s should've created an error but it didn't" % (data, )
+            self.assert_('schema' in f.errors.keys(), msg)
+
+        for data in valid_datas:
+            f = Form(data)
+            self.assert_('schema' not in f.errors.keys())
