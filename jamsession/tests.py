@@ -233,3 +233,43 @@ class CSVImportTests(JamTestCase):
 
         self.assertEqual(91, num_created)
         self.assertEqual(91, DataObj.objects.count())
+
+
+class DataDefFormTests(JamTestCase):
+    """Tests for the form to create DataSetDefinitions"""
+
+    def _get_target_klass(self):
+        from jamsession.models import DataSetDefinition
+        return DataSetDefinition.AdminForm
+
+    def test_name_should_be_required(self):
+        Form = self._get_target_klass()
+        datas = [
+            {'name': None},
+            {'name': ''},
+            {'name': '   '},
+        ]
+        for data in datas:
+            f = Form(data)
+            msg = "Data: %s didn't throw an error" % data
+            self.assert_('name' in f.errors, msg)
+
+        data = {'name': "The Brigadier"}
+        f = Form(data)
+        assert('name' not in f.errors)
+
+    def test_schema_should_be_required(self):
+        Form = self._get_target_klass()
+        datas = [
+            {'schema': None},
+            {'schema': ''},
+            {'schema': '   '},
+        ]
+        for data in datas:
+            f = Form(data)
+            msg = "Data: %s didn't throw an error" % data
+            self.assert_('schema' in f.errors, msg)
+
+        data = {'schema': 'First Name,string'}
+        f = Form(data)
+        assert('schema' not in f.errors)

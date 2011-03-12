@@ -102,6 +102,18 @@ class DataSetDefinition(DocumentModel):
         error_css_class = 'error'
         required_css_class = 'required'
         name = forms.CharField(required=True)
+        schema = forms.CharField(widget=forms.Textarea, required=True)
+
+        def clean_name(self):
+            data = self.cleaned_data['name'].strip()
+            if not data:
+                raise forms.ValidationError("Name is required.")
+            return data
+
+        def clean_schema(self):
+            data = self.cleaned_data['schema'].strip()
+            if not data:
+                raise forms.ValidationError("Schema is required.")
 
         def save(self):
             obj = DataSetDefinition(**self.cleaned_data)
