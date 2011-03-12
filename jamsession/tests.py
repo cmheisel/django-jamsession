@@ -1,27 +1,9 @@
 import os
 
-from django.test import TestCase
+from jamsession.test import JamTestCase
 
 
-class JamSessionTests(TestCase):
-    def setUp(self):
-        from mongoengine import connect
-        connect('jamsession-unit-tests')
-
-    def tearDown(self):
-        from mongoengine.connection import _get_db
-        db = _get_db()
-        [db.drop_collection(name) for name in db.collection_names() \
-          if 'system.' not in name]
-
-    def _get_target_class(self):
-        raise NotImplementedError
-
-    def _make_one(self, *args, **kwargs):
-        return self._get_target_class()(*args, **kwargs)
-
-
-class DataSetTest(JamSessionTests):
+class DataSetTest(JamTestCase):
     def _get_target_class(self):
         from jamsession.models import DataSetDefinition
         return DataSetDefinition
@@ -171,7 +153,7 @@ class DataSetTest(JamSessionTests):
         self.assertRaises(ValidationError, sample_def.validate)
 
 
-class CSVImportTests(JamSessionTests):
+class CSVImportTests(JamTestCase):
     def setUp(self):
         self.csv_fixture_path = os.path.join(
             os.path.abspath(
