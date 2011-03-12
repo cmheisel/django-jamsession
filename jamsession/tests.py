@@ -211,7 +211,7 @@ class CSVImportTests(JamTestCase):
         self.assert_(DataObj.objects.count() == 91)
         self.assertEqual(91, num_created)
 
-    def ztest_csv_exisiting_import(self):
+    def test_csv_exisiting_import(self):
         """
         DataSetDefinitions should be able to load data
         from a CSV into an exisiting schema.
