@@ -321,11 +321,31 @@ Name,string"""
 class DataDefAdminFuncTests(JamFuncTestCase):
     """Functional tests for the admin views."""
 
+    def setUp(self):
+        super(DataDefAdminFuncTests, self).setUp()
+        self.login()
+
+    def _get_target_klass(self):
+        from jamsession.models import DataSetDefinition
+        return DataSetDefinition
+
     def _get_target_url(self):
         return reverse('jamsession:admin-create-object',
                 kwargs={'object_type': 'datasetdefinition'})
 
     def test_create_page(self):
-        self.login()
         response = self.client.get(self.target_url)
-        self.assertEqual(200, response.status_code)
+        self.assertContains(response, 'Schema')
+
+    def test_successfull_creation(self):
+        klass = self._get_target_klass()
+        count = klass.objects.count()
+
+        data = {
+            'name': "Test Dataset",
+            'schema': """name,string\npay,float\nJob Title,string"""
+        }
+        response = self.client.post(self.target_url, data)
+        self.assertEqual(302, response.status_code)
+        new_count = klass.objects.count()
+        self.assertEqual(True, new_count-1 == count)

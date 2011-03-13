@@ -41,10 +41,13 @@ class JamFuncTestCase(JamTestCaseBase):
 
     def _set_up_user(self):
         from django.contrib.auth.models import User
-        User.objects.create_user(self.username, self.email, self.password)
+        u = User.objects.create_user(self.username, self.email, self.password)
+        u.is_staff = True
+        u.save()
 
     def login(self):
-        self.client.login(username=self.username, password=self.password)
+        result = self.client.login(username=self.username, password=self.password)
+        self.assert_(result)
 
     def _get_target_url(self):
         raise NotImplementedError
