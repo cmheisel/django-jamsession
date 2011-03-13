@@ -26,5 +26,6 @@ class JamTestCase(JamTestCaseBase):
     def _make_one(self, *args, **kwargs):
         return self._get_target_class()(*args, **kwargs)
 
+
 class JamFuncTestCase(JamTestCaseBase):
     pass
