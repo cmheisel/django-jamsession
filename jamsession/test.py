@@ -1,6 +1,8 @@
 from unittest2 import TestCase
 
 from django.test import TestCase as DjangoTestCase
+from django.test.client import RequestFactory
+
 
 class JamTestCaseBase(DjangoTestCase, TestCase):
     """
@@ -10,6 +12,7 @@ class JamTestCaseBase(DjangoTestCase, TestCase):
     def setUp(self):
         from mongoengine import connect
         connect('jamsession-unit-tests')
+        super(JamTestCaseBase, self).setUp()
 
     def tearDown(self):
         from mongoengine.connection import _get_db
@@ -28,4 +31,24 @@ class JamTestCase(JamTestCaseBase):
 
 
 class JamFuncTestCase(JamTestCaseBase):
-    pass
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.username = 'test'
+        self.email = 'test@test.test'
+        self.password = 'test'
+        self._set_up_user()
+        super(JamFuncTestCase, self).setUp()
+
+    def _set_up_user(self):
+        from django.contrib.auth.models import User
+        User.objects.create_user(self.username, self.email, self.password)
+
+    def login(self):
+        self.client.login(username=self.username, password=self.password)
+
+    def _get_target_url(self):
+        raise NotImplementedError
+
+    @property
+    def target_url(self):
+        return self._get_target_url()

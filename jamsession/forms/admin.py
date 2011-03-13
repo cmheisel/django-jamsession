@@ -1,6 +1,7 @@
 from django import forms
 
 from jamsession.forms.fields import SchemaField
+from jamsession.models import DataSetDefinition
 
 
 class DataDefAdminForm(forms.Form):
@@ -8,6 +9,9 @@ class DataDefAdminForm(forms.Form):
     required_css_class = 'required'
     name = forms.CharField(required=True)
     schema = SchemaField(widget=forms.Textarea, required=True)
+
+    class _meta(object):
+        model = DataSetDefinition
 
     def clean_name(self):
         data = self.cleaned_data['name'].strip()

@@ -1,6 +1,9 @@
 import os
 
-from jamsession.test import JamTestCase
+import mock
+from django.core.urlresolvers import reverse
+
+from jamsession.test import JamTestCase, JamFuncTestCase
 
 
 class DataSetTest(JamTestCase):
@@ -239,8 +242,8 @@ class DataDefFormTests(JamTestCase):
     """Tests for the form to create DataSetDefinitions"""
 
     def _get_target_klass(self):
-        from jamsession.models import DataSetDefinition
-        return DataSetDefinition.AdminForm
+        from jamsession.forms.admin import DataDefAdminForm
+        return DataDefAdminForm
 
     def test_name_should_be_required(self):
         Form = self._get_target_klass()
@@ -313,3 +316,16 @@ Name,string"""
         for data in valid_datas:
             f = Form(data)
             self.assert_('schema' not in f.errors.keys())
+
+
+class DataDefAdminFuncTests(JamFuncTestCase):
+    """Functional tests for the admin views."""
+
+    def _get_target_url(self):
+        return reverse('jamsession:admin-create-object',
+                kwargs={'object_type': 'datasetdefinition'})
+
+    def test_create_page(self):
+        self.login()
+        response = self.client.get(self.target_url)
+        self.assertEqual(200, response.status_code)

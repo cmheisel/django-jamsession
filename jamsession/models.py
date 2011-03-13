@@ -4,7 +4,6 @@ import logging
 import pprint
 from csv import DictReader
 from mongoengine import Document, StringField, DictField
-from jamsession.forms.admin import DataDefAdminForm
 from jamsession.util import FIELD_TYPE_TRANSLATIONS
 
 
@@ -14,8 +13,6 @@ class ClassProperty(property):
 
 
 class DocumentModel(Document):
-    AdminForm = DataDefAdminForm
-
     @classmethod
     def verbose_name(cls):
         return cls.meta.get('verbose_name', cls.__name__)
