@@ -314,6 +314,19 @@ Name,string"""
             f = Form(data)
             self.assert_('schema' not in f.errors.keys())
 
+    def test_name_should_be_unique(self):
+        Form = self._get_target_klass()
+        data = {'name': 'Amy Pond',
+                'schema': 'Name,string'}
+
+        f = Form(data)
+        self.assert_(f.is_valid())
+        f.save()
+
+        f2 = Form(data)
+        # You can't have two Amy Pond's
+        self.assert_('name' in f2.errors.keys())
+
 
 class DataDefAdminFuncTests(JamFuncTestCase):
     """Functional tests for the admin views."""

@@ -27,6 +27,9 @@ class DataDefAdminForm(forms.Form):
         data = self.cleaned_data['name'].strip()
         if not data:
             raise forms.ValidationError("Name is required.")
+
+        if DataSetDefinition.objects.filter(name=data).count() >= 1:
+            raise forms.ValidationError("Name must be unique.")
         return data
 
     def save(self):
