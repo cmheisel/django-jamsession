@@ -30,17 +30,19 @@ class AdminViewMixin(ContextMixin):
         return view
 
 
-
 class DashboardView(AdminViewMixin, TemplateView):
     template_name = 'jamsession/admin/dashboard.html'
     extra_context = {'title': "Jamsession Administration"}
+
 
 object_types = {
     'datasetdefinition': (DataSetDefinition, DataDefAdminForm)
 }
 
 
-class AdminCreateView(CreateView):
+class AdminCreateView(AdminViewMixin, CreateView):
+    template_name = 'jamsession/admin/create_object.html'
+
     def _construct_object_dictionary(self, obj):
         """
         Used to access an objection like a dictionary
@@ -53,17 +55,6 @@ class AdminCreateView(CreateView):
             if not callable(attr):
                 obj_dict[key] = attr
         return obj_dict
-
-    def get_context_data(self, **kwargs):
-        """
-        Sets the context for the view. Overriding
-        any computed context with the keys/values
-        found in self.extra_context if it exists.
-        """
-        context = super(AdminCreateView, self).get_context_data(**kwargs)
-        if getattr(self, 'extra_context', None):
-            context.update(self.extra_context)
-        return context
 
     def get_success_url(self):
         """
@@ -111,33 +102,29 @@ class AdminCreateView(CreateView):
             self._construct_object_dictionary(self.object)
 
 
-@site.admin_view
-def create_object(request, object_type):
-    klass, form_klass = object_types.get(object_type, None)
-    if not klass:
-        raise Http404("Content type %s not found" % object_type)
+    def dispatch(self, request, object_type):
+        klass, form_klass = object_types.get(object_type, None)
+        if not klass:
+            raise Http404("Content type %s not found" % object_type)
 
-    context = {
-        'title': 'Add %s' % klass.verbose_name,
-        'klass': klass,
-        'add': True,
-        'obj': None,
-    }
-    view = AdminCreateView()
-    view.template_name = 'jamsession/admin/create_object.html'
-    view.form_class = form_klass
-    view.save_url = reverse("jamsession:admin-changelist-object",
+        self.extra_context = {
+            'title': 'Add %s' % klass.verbose_name,
+            'klass': klass,
+            'add': True,
+            'obj': None,
+        }
+
+        self.form_class = form_klass
+        self.save_url = reverse("jamsession:admin-changelist-object",
                             kwargs=dict(object_type=object_type))
-    view.continue_url = reverse("jamsession:admin-edit-object",
-                            kwargs=dict(object_type=object_type,
-                                        object_id="%(id)s")
-    )
-    view.success_url = view.continue_url
-    view.addanother_url = reverse("jamsession:admin-create-object",
+        self.continue_url = reverse("jamsession:admin-edit-object",
+                                kwargs=dict(object_type=object_type,
+                                            object_id="%(id)s")
+                                )
+        self.success_url = self.continue_url
+        self.addanother_url = reverse("jamsession:admin-create-object",
                                   kwargs=dict(object_type=object_type))
-    view.request = request
-    view.extra_context = context
-    return view.dispatch(request)
+        return super(AdminCreateView, self).dispatch(request, object_type)
 
 
 @site.admin_view
