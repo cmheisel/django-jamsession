@@ -88,12 +88,17 @@ class AdminCreateView(CreateView):
 
     def get_save_url(self):
         """URL for user press of the "Save" button"""
-        if self.save_url:
-            url = self.save_url % \
-                self._construct_object_dictionary(self.object)
-        else:
-            url = self._get_success_url()
-        return url
+        return self.save_url % self._construct_object_dictionary(self.object)
+
+    def get_continue_url(self):
+        """URL for user press of the "Save and Continue Editing" button"""
+        return self.continue_url % \
+            self._construct_object_dictionary(self.object)
+
+    def get_addanother_url(self):
+        """URL for user press of the "Save and Add Another" button"""
+        return self.addanother_url % \
+            self._construct_object_dictionary(self.object)
 
 
 @site.admin_view
@@ -113,10 +118,11 @@ def create_object(request, object_type):
     view.form_class = form_klass
     view.save_url = reverse("jamsession:admin-changelist-object",
                             kwargs=dict(object_type=object_type))
-    view.success_url = reverse("jamsession:admin-edit-object",
+    view.continue_url = reverse("jamsession:admin-edit-object",
                             kwargs=dict(object_type=object_type,
                                         object_id="%(id)s")
     )
+    view.success_url = view.continue_url
     view.request = request
     view.extra_context = context
     return view.dispatch(request)

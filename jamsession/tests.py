@@ -370,7 +370,6 @@ class DataDefAdminFuncTests(JamFuncTestCase):
             'schema': 'name,string'
         }
         data.update(data_updates)
-        data['_save'] = "Save"
 
         response = self.client.post(self.target_url, data)
 
@@ -379,7 +378,10 @@ class DataDefAdminFuncTests(JamFuncTestCase):
         expected_url = get_expected_url(instance)
         self.assertRedirects(response, expected_url)
 
-        self.assertEqual(302, response.status_code)
+    def test_save_and_continue(self):
+        data = {'_continue': "Save and Continue editing"}
+        expected_url = lambda i: self._get_edit_url(i.id)
+        self._test_save_handling(data, expected_url)
 
     def test_save_handling(self):
         data = {'_save': "Save"}
