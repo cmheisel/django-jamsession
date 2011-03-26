@@ -31,9 +31,6 @@ object_types = {
 
 
 class AdminCreateView(CreateView):
-    def get_form_kwargs(self):
-        return super(ModelFormMixin, self).get_form_kwargs()
-
     def _construct_object_dictionary(self, obj):
         """
         Used to access an objection like a dictionary
@@ -85,15 +82,7 @@ def create_object(request, object_type):
                                         object_id="%(id)s")
     )
     view.request = request
-    print view.get_form_kwargs()
     return view.dispatch(request)
-
-    return generic_create_object(request,
-                                 form_class=form_class,
-                                 template_name=template_name,
-                                 extra_context=context,
-                                 post_save_redirect=post_save_url)
-
 
 def edit_object(request, object_type, object_id):
     pass
