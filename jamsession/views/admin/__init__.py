@@ -55,13 +55,18 @@ class AdminCreateView(CreateView):
             context.update(self.extra_context)
         return context
 
-    """
-    Need to handle
-    _save
-    _continue
-    _addanother
-    """
     def get_success_url(self):
+        """
+        Determines where to redirect to if the form
+        successfully saves. Handles:
+        * Save
+        * Save and continue editing
+        * Save and add another
+
+        Falls back to self.success_url and then
+        object.get_absolute_url()
+        """
+
         if '_save' in self.request.POST:
             return self.get_save_url()
         if '_continue' in self.request.POST:
@@ -69,21 +74,6 @@ class AdminCreateView(CreateView):
         if '_addanother' in self.request.POST:
             return self.get_addanother_url()
 
-        return self._get_success_url()
-
-    def get_save_url(self):
-        if self.save_url:
-            url = self.save_url % \
-                self._construct_object_dictionary(self.object)
-        else:
-            url = self._get_success_url()
-        return url
-
-    def _get_success_url(self):
-        """
-        Determines where to redirect to if the form
-        successfully saves.
-        """
         if self.success_url:
             url = self.success_url % \
                 self._construct_object_dictionary(self.object)
@@ -94,6 +84,15 @@ class AdminCreateView(CreateView):
                 raise ImproperlyConfigured(
                     "No URL to redirect to.  Either provide a url or define"
                     " a get_absolute_url method on the Model.")
+        return url
+
+    def get_save_url(self):
+        """URL for user press of the "Save" button"""
+        if self.save_url:
+            url = self.save_url % \
+                self._construct_object_dictionary(self.object)
+        else:
+            url = self._get_success_url()
         return url
 
 
