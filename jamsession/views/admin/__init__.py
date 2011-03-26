@@ -35,6 +35,10 @@ class AdminCreateView(CreateView):
         return super(ModelFormMixin, self).get_form_kwargs()
 
     def _construct_object_dictionary(self, obj):
+        """
+        Used to access an objection like a dictionary
+        Useful for get_success_url
+        """
         obj_dict = {}
         keys = [key for key in dir(obj) if not key.startswith('_')]
         for key in keys:
@@ -44,6 +48,10 @@ class AdminCreateView(CreateView):
         return obj_dict
 
     def get_success_url(self):
+        """
+        Determines where to redirect to if the form
+        successfully saves.
+        """
         if self.success_url:
             url = self.success_url % \
                 self._construct_object_dictionary(self.object)
