@@ -7,7 +7,10 @@ from jamsession.models import DataSetDefinition
 class DataDefAdminForm(forms.Form):
     error_css_class = 'error'
     required_css_class = 'required'
-    name = forms.CharField(required=True)
+    name = forms.CharField(required=True,
+                           widget=forms.TextInput(
+                           attrs={'class': 'vTextField'})
+                           )
     schema = SchemaField(widget=forms.Textarea, required=True)
 
     def __init__(self, *args, **kwargs):
