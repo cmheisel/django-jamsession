@@ -1,6 +1,6 @@
 import os
+import datetime
 
-import mock
 from django.core.urlresolvers import reverse
 
 from jamsession.test import JamTestCase, JamFuncTestCase
@@ -17,8 +17,6 @@ class DataSetTest(JamTestCase):
         should return an object that has fields
         for every key in it's schema dictionary.
         """
-        import datetime
-
         schema = dict(
             name='string',
             url='url',
@@ -84,7 +82,6 @@ class DataSetTest(JamTestCase):
         NullableDef = self._make_one(name="NullTester",
                                     schema=nullable_schema)
 
-        import datetime
         Nullable = NullableDef.get_data_object()
         Nullable.objects.create(**{'Archive': '0',
                                    'Backlog': '9',
