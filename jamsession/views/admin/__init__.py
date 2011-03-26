@@ -1,29 +1,39 @@
-from django.shortcuts import render_to_response
-from django.template import RequestContext
 from django.contrib.admin.sites import site
-from django.http import Http404, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ImproperlyConfigured
+
 from django.views.generic.edit import CreateView
-from django.views.generic.edit import ModelFormMixin
+from django.views.generic.base import View, TemplateView
 
 from jamsession.models import DataSetDefinition
 from jamsession.forms.admin import DataDefAdminForm
 
 
-@site.admin_view
-def dashboard(request):
+class ContextMixin(View):
     """
-    Dashboard view for Jamsession app.
+    get_context_data will update itself from self.extra_context if it exists
     """
-    context = {
-        'title': "Jamsession Administration",
-    }
-    return render_to_response(
-        'jamsession/admin/dashboard.html',
-        context,
-        context_instance=RequestContext(request))
+    def get_context_data(self, **kwargs):
+        context = super(ContextMixin, self).get_context_data(**kwargs)
+        if getattr(self, 'extra_context', None):
+            context.update(self.extra_context)
+        return context
 
+
+class AdminViewMixin(ContextMixin):
+    """Base for all the Jamsession Admin Views"""
+
+    @classmethod
+    def as_view(self, *args, **kwargs):
+        view = super(AdminViewMixin, self).as_view(*args, **kwargs)
+        view = site.admin_view(view)
+        return view
+
+
+
+class DashboardView(AdminViewMixin, TemplateView):
+    template_name = 'jamsession/admin/dashboard.html'
+    extra_context = {'title': "Jamsession Administration"}
 
 object_types = {
     'datasetdefinition': (DataSetDefinition, DataDefAdminForm)
