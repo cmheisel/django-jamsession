@@ -122,11 +122,13 @@ def create_object(request, object_type):
     return view.dispatch(request)
 
 
+@site.admin_view
 def edit_object(request, object_type, object_id):
     from django.http import HttpResponse
     return HttpResponse('Hi')
 
 
+@site.admin_view
 def changelist(request, object_type):
     from django.http import HttpResponse
     return HttpResponse('Hi changelist')
