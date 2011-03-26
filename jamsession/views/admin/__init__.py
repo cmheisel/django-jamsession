@@ -55,7 +55,31 @@ class AdminCreateView(CreateView):
             context.update(self.extra_context)
         return context
 
+    """
+    Need to handle
+    _save
+    _continue
+    _addanother
+    """
     def get_success_url(self):
+        if '_save' in self.request.POST:
+            return self.get_save_url()
+        if '_continue' in self.request.POST:
+            return self.get_continue_url()
+        if '_addanother' in self.request.POST:
+            return self.get_addanother_url()
+
+        return self._get_success_url()
+
+    def get_save_url(self):
+        if self.save_url:
+            url = self.save_url % \
+                self._construct_object_dictionary(self.object)
+        else:
+            url = self._get_success_url()
+        return url
+
+    def _get_success_url(self):
         """
         Determines where to redirect to if the form
         successfully saves.
@@ -88,6 +112,8 @@ def create_object(request, object_type):
     view = AdminCreateView()
     view.template_name = 'jamsession/admin/create_object.html'
     view.form_class = form_klass
+    view.save_url = reverse("jamsession:admin-changelist-object",
+                            kwargs=dict(object_type=object_type))
     view.success_url = reverse("jamsession:admin-edit-object",
                             kwargs=dict(object_type=object_type,
                                         object_id="%(id)s")
@@ -96,5 +122,12 @@ def create_object(request, object_type):
     view.extra_context = context
     return view.dispatch(request)
 
+
 def edit_object(request, object_type, object_id):
-    pass
+    from django.http import HttpResponse
+    return HttpResponse('Hi')
+
+
+def changelist(request, object_type):
+    from django.http import HttpResponse
+    return HttpResponse('Hi changelist')

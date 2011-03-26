@@ -333,6 +333,14 @@ class DataDefAdminFuncTests(JamFuncTestCase):
         return reverse('jamsession:admin-create-object',
                 kwargs={'object_type': 'datasetdefinition'})
 
+    def _get_edit_url(self, object_id=None):
+        return reverse('jamsession:admin-edit-object',
+                       kwargs={'object_type': 'datasetdefinition', 'object_id': object_id})
+
+    def _get_changelist_url(self, object_type='datasetdefinition'):
+        return reverse('jamsession:admin-changelist-object',
+                       kwargs={'object_type': object_type})
+
     def test_create_page(self):
         response = self.client.get(self.target_url)
         self.assertContains(response, 'Schema')
@@ -348,4 +356,32 @@ class DataDefAdminFuncTests(JamFuncTestCase):
         response = self.client.post(self.target_url, data)
         self.assertEqual(302, response.status_code)
         new_count = klass.objects.count()
-        self.assertEqual(True, new_count-1 == count)
+        self.assertEqual(True, new_count - 1 == count)
+
+    def _test_save_handling(self, data_updates, get_expected_url):
+        """
+        The admin form should fire get_save_url
+        get_continue_url and get_addanother_url
+        depending on values in request.POST
+        or fall back to super()'s get_success_url
+        """
+        data = {
+            'name': 'Tardis',
+            'schema': 'name,string'
+        }
+        data.update(data_updates)
+        data['_save'] = "Save"
+
+        response = self.client.post(self.target_url, data)
+
+        klass = self._get_target_klass()
+        instance = klass.objects.get(name=data['name'])  # Get our object
+        expected_url = get_expected_url(instance)
+        self.assertRedirects(response, expected_url)
+
+        self.assertEqual(302, response.status_code)
+
+    def test_save_handling(self):
+        data = {'_save': "Save"}
+        expected_url = lambda i: self._get_changelist_url()
+        self._test_save_handling(data, expected_url)
