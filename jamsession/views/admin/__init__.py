@@ -123,6 +123,8 @@ def create_object(request, object_type):
                                         object_id="%(id)s")
     )
     view.success_url = view.continue_url
+    view.addanother_url = reverse("jamsession:admin-create-object",
+                                  kwargs=dict(object_type=object_type))
     view.request = request
     view.extra_context = context
     return view.dispatch(request)
