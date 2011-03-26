@@ -6,3 +6,5 @@ example/*.csv
 *.egg-info/*
 .DS_Store
 example/build.sh
+example/*.log
+.#*
