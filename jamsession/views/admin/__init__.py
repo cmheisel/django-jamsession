@@ -44,6 +44,17 @@ class AdminCreateView(CreateView):
                 obj_dict[key] = attr
         return obj_dict
 
+    def get_context_data(self, **kwargs):
+        """
+        Sets the context for the view. Overriding
+        any computed context with the keys/values
+        found in self.extra_context if it exists.
+        """
+        context = super(AdminCreateView, self).get_context_data(**kwargs)
+        if getattr(self, 'extra_context', None):
+            context.update(self.extra_context)
+        return context
+
     def get_success_url(self):
         """
         Determines where to redirect to if the form
@@ -82,6 +93,7 @@ def create_object(request, object_type):
                                         object_id="%(id)s")
     )
     view.request = request
+    view.extra_context = context
     return view.dispatch(request)
 
 def edit_object(request, object_type, object_id):
