@@ -10,6 +10,13 @@ class DataDefAdminForm(forms.Form):
     name = forms.CharField(required=True)
     schema = SchemaField(widget=forms.Textarea, required=True)
 
+    def __init__(self, *args, **kwargs):
+        if 'instance' in kwargs:
+            self.instance = kwargs['instance']
+            del kwargs['instance']
+
+        super(DataDefAdminForm, self).__init__(*args, **kwargs)
+
     class _meta(object):
         model = DataSetDefinition
 
