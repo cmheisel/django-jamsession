@@ -54,7 +54,7 @@ class SchemaTest(JamTestCase):
 
     def test_duplicate_rows_with_null(self):
         """
-        Two Objects created from DynamicDataDefinitions
+        Two Objects created from Schemas
         should allow two rows to contain null values for the
         same key.
         """
@@ -235,12 +235,12 @@ class CSVImportTests(JamTestCase):
         self.assertEqual(91, DataObj.objects.count())
 
 
-class DataDefFormTests(JamTestCase):
+class SchemaFormTests(JamTestCase):
     """Tests for the form to create Schemas"""
 
     def _get_target_klass(self):
-        from jamsession.forms.admin import DataDefAdminForm
-        return DataDefAdminForm
+        from jamsession.forms.admin import SchemaAdminForm
+        return SchemaAdminForm
 
     def test_name_should_be_required(self):
         Form = self._get_target_klass()

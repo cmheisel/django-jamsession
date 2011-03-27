@@ -8,7 +8,7 @@ from django.views.generic.edit import CreateView
 from django.views.generic.base import View, TemplateView
 
 from jamsession.models import Schema
-from jamsession.forms.admin import DataDefAdminForm
+from jamsession.forms.admin import SchemaAdminForm
 
 
 class ContextMixin(View):
@@ -25,7 +25,7 @@ class ContextMixin(View):
 class AdminViewMixin(ContextMixin):
     """Base for all the Jamsession Admin Views"""
     object_types = {
-        'schema': (Schema, DataDefAdminForm)
+        'schema': (Schema, SchemaAdminForm)
     }
 
     @classmethod

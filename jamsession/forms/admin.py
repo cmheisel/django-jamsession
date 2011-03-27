@@ -4,7 +4,7 @@ from jamsession.forms.fields import SchemaField
 from jamsession.models import Schema
 
 
-class DataDefAdminForm(forms.Form):
+class SchemaAdminForm(forms.Form):
     error_css_class = 'error'
     required_css_class = 'required'
     name = forms.CharField(required=True,
@@ -18,7 +18,7 @@ class DataDefAdminForm(forms.Form):
             self.instance = kwargs['instance']
             del kwargs['instance']
 
-        super(DataDefAdminForm, self).__init__(*args, **kwargs)
+        super(SchemaAdminForm, self).__init__(*args, **kwargs)
 
     class _meta(object):
         model = Schema
