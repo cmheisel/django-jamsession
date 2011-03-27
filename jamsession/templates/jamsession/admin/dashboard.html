@@ -16,9 +16,9 @@
     <table summary="Models available in the jamsession application">
       <caption><a class="section" href="{% url jamsession:admin-dashboard %}">Jamsession</a></caption>
       <tr>
-        {% url jamsession:admin-create-object 'datasetdefinition' as datadef_create_url %}
-        <th scope="row"><a href="{{ datadef_create_url }}">Data set definition</a></th>
-        <td><a href="{{ datadef_create_url }}" class="addlink">Add</a></td>
+        {% url jamsession:admin-create-object 'schema' as schema_create_url %}
+        <th scope="row"><a href="{{ schema_create_url }}">Schema</a></th>
+        <td><a href="{{ schema_create_url }}" class="addlink">Add</a></td>
         <td>Change</td>
       </tr>
     </table>

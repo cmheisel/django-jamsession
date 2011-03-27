@@ -38,11 +38,11 @@ class DocumentModel(Document):
     object_name = ClassProperty(object_name)
 
 
-class DataSetDefinition(DocumentModel):
+class Schema(DocumentModel):
     name = StringField(unique=True, required=True)
     schema = DictField(required=True)
     meta = {
-        'verbose_name': 'Data set definition'
+        'verbose_name': 'Schema'
     }
 
     def _get_data_object_fields(self):
@@ -71,6 +71,7 @@ class DataSetDefinition(DocumentModel):
             self._get_data_object_name(),
             (DocumentModel, ),
             data_object_fields,)
+
 
 class ImportFailed(Exception):
     row_errors = []
@@ -149,7 +150,7 @@ class CSVImporter(object):
 
         if not datadef:
             schema = [(name.strip(), 'string') for name in reader.fieldnames]
-            datadef = DataSetDefinition.objects.create(
+            datadef = Schema.objects.create(
                 name=os.path.basename(datafile),
                 schema=dict(schema))
             datadef.save()

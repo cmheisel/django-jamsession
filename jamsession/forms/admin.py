@@ -1,7 +1,7 @@
 from django import forms
 
 from jamsession.forms.fields import SchemaField
-from jamsession.models import DataSetDefinition
+from jamsession.models import Schema
 
 
 class DataDefAdminForm(forms.Form):
@@ -21,18 +21,18 @@ class DataDefAdminForm(forms.Form):
         super(DataDefAdminForm, self).__init__(*args, **kwargs)
 
     class _meta(object):
-        model = DataSetDefinition
+        model = Schema
 
     def clean_name(self):
         data = self.cleaned_data['name'].strip()
         if not data:
             raise forms.ValidationError("Name is required.")
 
-        if DataSetDefinition.objects.filter(name=data).count() >= 1:
+        if self._meta.model.objects.filter(name=data).count() >= 1:
             raise forms.ValidationError("Name must be unique.")
         return data
 
     def save(self):
-        obj = DataSetDefinition(**self.cleaned_data)
+        obj = self._meta.model(**self.cleaned_data)
         obj.save()
         return obj

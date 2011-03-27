@@ -2,10 +2,12 @@ from django.contrib.admin.sites import site
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ImproperlyConfigured
 
+from django.http import Http404
+
 from django.views.generic.edit import CreateView
 from django.views.generic.base import View, TemplateView
 
-from jamsession.models import DataSetDefinition
+from jamsession.models import Schema
 from jamsession.forms.admin import DataDefAdminForm
 
 
@@ -22,6 +24,9 @@ class ContextMixin(View):
 
 class AdminViewMixin(ContextMixin):
     """Base for all the Jamsession Admin Views"""
+    object_types = {
+        'schema': (Schema, DataDefAdminForm)
+    }
 
     @classmethod
     def as_view(self, *args, **kwargs):
@@ -33,11 +38,6 @@ class AdminViewMixin(ContextMixin):
 class DashboardView(AdminViewMixin, TemplateView):
     template_name = 'jamsession/admin/dashboard.html'
     extra_context = {'title': "Jamsession Administration"}
-
-
-object_types = {
-    'datasetdefinition': (DataSetDefinition, DataDefAdminForm)
-}
 
 
 class AdminCreateView(AdminViewMixin, CreateView):
@@ -101,9 +101,8 @@ class AdminCreateView(AdminViewMixin, CreateView):
         return self.addanother_url % \
             self._construct_object_dictionary(self.object)
 
-
     def dispatch(self, request, object_type):
-        klass, form_klass = object_types.get(object_type, None)
+        klass, form_klass = self.object_types.get(object_type, (None, None))
         if not klass:
             raise Http404("Content type %s not found" % object_type)
 

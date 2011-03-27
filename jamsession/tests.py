@@ -6,14 +6,14 @@ from django.core.urlresolvers import reverse
 from jamsession.test import JamTestCase, JamFuncTestCase
 
 
-class DataSetTest(JamTestCase):
+class SchemaTest(JamTestCase):
     def _get_target_class(self):
-        from jamsession.models import DataSetDefinition
-        return DataSetDefinition
+        from jamsession.models import Schema
+        return Schema
 
     def test_data_set_basic_schema(self):
         """
-        A DataSetDefinition's get_data_set method
+        A Schema's get_data_set method
         should return an object that has fields
         for every key in it's schema dictionary.
         """
@@ -130,7 +130,7 @@ class DataSetTest(JamTestCase):
 
     def test_bad_names(self):
         """
-        A DataSetDefinition's name may contain
+        A Schema's name may contain
         crazy non-valid Python characters.
         It should appear, unchanged in it's data_object
         repr().
@@ -169,8 +169,8 @@ class CSVImportTests(JamTestCase):
         return os.path.join(self.csv_fixture_path, filename)
 
     def _get_cumulative_flow_def(self):
-        from jamsession.models import DataSetDefinition
-        return DataSetDefinition(
+        from jamsession.models import Schema
+        return Schema(
             name='Cumulative Flow Data',
             schema={
                 'Date': 'datetime',
@@ -197,7 +197,7 @@ class CSVImportTests(JamTestCase):
 
     def test_csv_fresh_import(self):
         """
-        DataSetDefinitions should be able to load data
+        Schemas should be able to load data
         from a CSV into a on-the-fly schema.
 
         For now, that means all values come in as strings.
@@ -213,7 +213,7 @@ class CSVImportTests(JamTestCase):
 
     def test_csv_exisiting_import(self):
         """
-        DataSetDefinitions should be able to load data
+        Schemas should be able to load data
         from a CSV into an exisiting schema.
         """
         importer = self._make_one()
@@ -236,7 +236,7 @@ class CSVImportTests(JamTestCase):
 
 
 class DataDefFormTests(JamTestCase):
-    """Tests for the form to create DataSetDefinitions"""
+    """Tests for the form to create Schemas"""
 
     def _get_target_klass(self):
         from jamsession.forms.admin import DataDefAdminForm
@@ -336,18 +336,18 @@ class DataDefAdminFuncTests(JamFuncTestCase):
         self.login()
 
     def _get_target_klass(self):
-        from jamsession.models import DataSetDefinition
-        return DataSetDefinition
+        from jamsession.models import Schema
+        return Schema
 
     def _get_target_url(self):
         return reverse('jamsession:admin-create-object',
-                kwargs={'object_type': 'datasetdefinition'})
+                kwargs={'object_type': 'schema'})
 
     def _get_edit_url(self, object_id=None):
         return reverse('jamsession:admin-edit-object',
-                       kwargs={'object_type': 'datasetdefinition', 'object_id': object_id})
+                       kwargs={'object_type': 'schema', 'object_id': object_id})
 
-    def _get_changelist_url(self, object_type='datasetdefinition'):
+    def _get_changelist_url(self, object_type='schema'):
         return reverse('jamsession:admin-changelist-object',
                        kwargs={'object_type': object_type})
 
