@@ -345,11 +345,11 @@ Name,string"""
         self.assert_('name' in f2.errors.keys())
 
 
-class DataDefAdminFuncTests(JamFuncTestCase):
+class SchemaAdminFuncTests(SchemaFuncTestCase):
     """Functional tests for the admin views."""
 
     def setUp(self):
-        super(DataDefAdminFuncTests, self).setUp()
+        super(SchemaAdminFuncTests, self).setUp()
         self.login()
 
     def _get_target_klass(self):
