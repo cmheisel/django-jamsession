@@ -5,12 +5,29 @@ from django.core.urlresolvers import reverse
 
 from jamsession.test import JamTestCase, JamFuncTestCase
 
-
-class SchemaTest(JamTestCase):
+class SchemaTestCase(JamTestCase):
     def _get_target_class(self):
         from jamsession.models import Schema
         return Schema
 
+    def _valid_kwargs(self):
+        valid_kwargs = {
+            'schema': dict(
+                name='string',
+                url='url',
+                email='email',
+                integer='int',
+                floater='float',
+                boolean='bool',
+                datetime='datetime'),
+            'name': "Valid Schema %s" % self._available_index()
+        }
+        return valid_kwargs
+
+class SchemaFuncTestCase(SchemaTestCase, JamFuncTestCase):
+    pass
+
+class SchemaTest(SchemaTestCase):
     def test_data_set_basic_schema(self):
         """
         A Schema's get_data_set method
