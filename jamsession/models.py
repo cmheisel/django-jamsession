@@ -41,9 +41,14 @@ class DocumentModel(Document):
 class Schema(DocumentModel):
     name = StringField(unique=True, required=True)
     schema = DictField(required=True)
+    _data_document_collection = StringField()
     meta = {
         'verbose_name': 'Schema'
     }
+
+    def save(self, *args, **kwargs):
+        self._data_document = self.get_data_object()
+        super(Schema, self).save(*args, **kwargs)
 
     def _get_data_object_fields(self):
         data_object_fields = {}
@@ -64,13 +69,16 @@ class Schema(DocumentModel):
         def data_object_repr(obj):
             return u"<%s: %s>" % (obj.__class__, self.name)
         data_object_fields['__repr__'] = data_object_repr
+        collection_name = self._data_document_collection or self._get_data_object_name()
         data_object_fields['meta'] = {
-            'collection': self._get_data_object_name()}
+            'collection': str(collection_name)}
 
-        return type(
-            self._get_data_object_name(),
+        DataDocument = type(
+            str(collection_name),
             (DocumentModel, ),
             data_object_fields,)
+        self._data_document_collection = DataDocument.meta['collection']
+        return DataDocument
 
 
 class ImportFailed(Exception):

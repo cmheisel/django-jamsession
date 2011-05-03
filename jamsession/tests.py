@@ -169,6 +169,23 @@ class SchemaTest(SchemaTestCase):
 
         self.assertRaises(ValidationError, sample_def.validate)
 
+    def test_changing_name(self):
+        """
+        If you create a Schema, enter some data, and then change its name,
+        you should be able to access any data inserted into it's DataObject
+        """
+        schema = self._make_valid_one()
+        schema.save()
+        
+        SampleObject = schema.get_data_object()
+        so = SampleObject.objects.create(name="Why am I such a moron?")
+        so.save()
+
+        schema.name = "Honestly I Am A Moron"
+        schema.save()
+        SampleObject = schema.get_data_object()
+        self.assertEqual(1, SampleObject.objects.count())
+
 
 class CSVImportTests(JamTestCase):
     def setUp(self):
