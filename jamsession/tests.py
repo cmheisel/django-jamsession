@@ -436,3 +436,14 @@ class SchemaAdminFuncTests(SchemaFuncTestCase):
         data = {'_save': "Save"}
         expected_url = lambda i: self._get_changelist_url()
         self._test_save_handling(data, expected_url)
+
+    def test_edit(self):
+        schema = self._make_valid_one()
+        schema.save()
+        response = self.client.get(self._get_edit_url(schema.id))
+        self.assertContains(response, 'Hi')
+
+"""
+* Schema should appear in form as it did when user originally entered it
+* Editing schema should copy data into new schema/modify existing schema
+"""
